@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mystery Core - Explore the Unexplained</title>
+    <!-- Using Inter for modern readability while keeping the overall aesthetic dark and dramatic -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            /* Deep Violet/Indigo Background */
+            background: linear-gradient(180deg, #160B28 0%, #0D061A 100%);
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+
+        /* --- Hero Section Styling --- */
+        .hero {
+            position: relative;
+            height: 80vh; /* Reduced height for better flow */
+            /* Removed background-attachment: fixed for custom JS parallax control */
+            background: linear-gradient(to bottom, rgba(22, 11, 40, 0.7), rgba(13, 6, 26, 0.9)),
+                         url('https://placehold.co/1200x800/2A0F5C/FFFFFF?text=CINEMATIC+BACKGROUND'); /* Dramatic placeholder */
+            background-size: cover;
+            background-position: center 50%; /* Initial position, 50% vertical for center */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 20px;
+        }
+
+        .logo {
+            font-size: clamp(3rem, 8vw, 6rem); /* Responsive font size */
+            font-weight: 900;
+            color: #FDB441; /* Amber/Gold Accent */
+            text-shadow: 
+                0 0 10px rgba(253, 180, 65, 0.6),
+                0 0 25px rgba(253, 180, 65, 0.4),
+                2px 2px #0D061A; /* Text outline for retro look */
+            margin-bottom: 10px;
+            letter-spacing: 5px;
+        }
+
+        .tagline {
+            font-size: clamp(1rem, 2vw, 1.5rem);
+            color: #b8b8d1;
+            margin-bottom: 40px;
+            font-style: italic;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #FDB441;
+            font-size: 0.9rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, 0); opacity: 1; }
+            50% { transform: translate(-50%, 10px); opacity: 0.7; }
+        }
+
+        /* --- Main Content Styling --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        .section-title {
+            font-size: clamp(1.8rem, 4vw, 2.5rem);
+            color: #FDB441;
+            text-align: center;
+            margin-bottom: 50px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            border-bottom: 2px solid rgba(253, 180, 65, 0.3);
+            padding-bottom: 15px;
+        }
+
+        .mysteries-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-bottom: 60px;
+            /* 3D Enhancement: Define the perspective for the grid */
+            perspective: 1500px; 
+        }
+
+        /* --- Mystery Card with Image Background --- */
+        .mystery-card {
+            /* Fallback background if image fails */
+            background-color: #1f1f3a; 
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+            min-height: 250px; /* Ensure cards have a minimum size */
+            
+            /* Background image properties */
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end; /* Align content to the bottom */
+            padding: 20px;
+            isolation: isolate; /* Create a stacking context for the pseudo-element overlay */
+            
+            /* 3D Enhancement: Establish 3D context and initial state */
+            transform-style: preserve-3d;
+            transform: translateZ(0);
+        }
+        
+        /* Dark Overlay for Text Readability (CRITICAL) */
+        .mystery-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Semi-transparent dark gradient from top to bottom */
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.2) 60%);
+            z-index: -1;
+            transition: background 0.4s ease;
+        }
+
+        .mystery-card:hover::before {
+            /* Darker overlay on hover */
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 60%);
+        }
+
+        .mystery-card:hover {
+            /* 3D Enhancement: Tilt and scale the card on hover */
+            transform: translateY(-8px) rotateX(1deg) rotateY(1deg) scale(1.02);
+            border-color: #FDB441;
+            box-shadow: 0 15px 40px rgba(253, 180, 65, 0.6); /* Slightly stronger shadow */
+        }
+
+        .mystery-title {
+            font-size: 1.4rem;
+            color: #FDB441;
+            margin-bottom: 5px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px #000;
+            /* 3D Enhancement: Push content forward */
+            transform: translateZ(50px);
+        }
+
+        .mystery-preview {
+            color: #d0d0e0;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            max-height: 4.2em; /* Show max 3 lines */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 10px;
+            /* 3D Enhancement: Push content forward */
+            transform: translateZ(40px);
+        }
+
+        .read-more {
+            display: inline-block;
+            color: #FDB441;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 0.8rem;
+            border: 1px solid #FDB441;
+            padding: 5px 15px;
+            border-radius: 20px;
+            transition: all 0.3s;
+            align-self: flex-start; /* Align button to the left */
+            /* 3D Enhancement: Push content forward */
+            transform: translateZ(60px); 
+        }
+
+        .read-more:hover {
+            background: #FDB441;
+            color: #1a1a2e;
+        }
+
+        /* Detail Page (Keep original structure for detail views) */
+        .detail-page { display: none; }
+        .detail-page.active { display: block; animation: fadeIn 0.5s; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .back-button { /* Re-styled back button for the dark theme */
+            display: inline-block;
+            background: #FDB441;
+            color: #1a1a2e;
+            padding: 12px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+        .back-button:hover { background: #ffcc66; transform: translateX(-5px); }
+        .detail-content {
+            background: #151528; /* Solid dark background for text detail */
+            border-radius: 15px;
+            padding: 50px;
+            border: 2px solid #FDB441;
+        }
+        .detail-title { color: #FDB441; text-align: center; }
+        .detail-text { color: #d0d0e0; line-height: 1.8; }
+        .detail-text h3 { color: #FDB441; }
+
+        footer {
+            background: #0D061A;
+            padding: 40px 20px;
+            text-align: center;
+            color: #b8b8d1;
+            margin-top: 60px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="homepage">
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="logo">MYSTERY CORE</h1>
+                <p class="tagline">Dive into the world's greatest unsolved mysteries</p>
+            </div>
+            <div class="scroll-hint">↓ Explore the Unknown ↓</div>
+        </section>
+
+        <div class="container">
+            <h2 class="section-title">Explore Mysteries</h2>
+            <div class="mysteries-grid">
+                <!-- Data attributes are used to hold the background image URL for each card -->
+                <div class="mystery-card" 
+                    data-mystery-id="bermuda" 
+                    data-bg-url="https://placehold.co/600x400/0A376B/FFFFFF?text=Bermuda+Storm"
+                    onclick="showDetail('bermuda')">
+                    <h3 class="mystery-title">The Bermuda Triangle</h3>
+                    <p class="mystery-preview">A region in the western part of the North Atlantic Ocean where ships and aircraft have disappeared under mysterious circumstances...</p>
+                    <a href="#" class="read-more">Decrypt File →</a>
+                </div>
+
+                <div class="mystery-card" 
+                    data-mystery-id="atlantis" 
+                    data-bg-url="https://placehold.co/600x400/403D5C/FFFFFF?text=Atlantis+Ruins"
+                    onclick="showDetail('atlantis')">
+                    <h3 class="mystery-title">Lost City of Atlantis</h3>
+                    <p class="mystery-preview">An ancient civilization described by Plato that allegedly sank into the ocean in a single day and night of catastrophe...</p>
+                    <a href="#" class="read-more">Decrypt File →</a>
+                </div>
+
+                <div class="mystery-card" 
+                    data-mystery-id="nazca" 
+                    data-bg-url="https://placehold.co/600x400/69592D/FFFFFF?text=Nazca+Aerial"
+                    onclick="showDetail('nazca')">
+                    <h3 class="mystery-title">Nazca Lines</h3>
+                    <p class="mystery-preview">Massive ancient geoglyphs etched into the Peruvian desert, visible only from the air, created by an ancient civilization...</p>
+                    <a href="#" class="read-more">Decrypt File →</a>
+                </div>
+
+                <div class="mystery-card" 
+                    data-mystery-id="stonehenge" 
+                    data-bg-url="https://placehold.co/600x400/3A506B/FFFFFF?text=Stonehenge+Megalith"
+                    onclick="showDetail('stonehenge')">
+                    <h3 class="mystery-title">Stonehenge</h3>
+                    <p class="mystery-preview">A prehistoric monument in England consisting of massive standing stones arranged in a circular formation...</p>
+                    <a href="#" class="read-more">Decrypt File →</a>
+                </div>
+
+                <div class="mystery-card" 
+                    data-mystery-id="pyramids" 
+                    data-bg-url="https://placehold.co/600x400/8B4513/FFFFFF?text=Giza+Pyramids"
+                    onclick="showDetail('pyramids')">
+                    <h3 class="mystery-title">Egyptian Pyramids</h3>
+                    <p class="mystery-preview">Ancient architectural marvels whose construction methods continue to baffle modern engineers and scientists...</p>
+                    <a href="#" class="read-more">Decrypt File →</a>
+                </div>
+
+                <div class="mystery-card" 
+                    data-mystery-id="oakisland" 
+                    data-bg-url="https://placehold.co/600x400/4F6D7A/FFFFFF?text=Oak+Island+Pit"
+                    onclick="showDetail('oakisland')">
+                    <h3 class="mystery-title">Oak Island Money Pit</h3>
+                    <p class="mystery-preview">A mysterious shaft on Oak Island in Nova Scotia, believed to contain hidden treasure, that has claimed lives and fortunes...</p>
+                    <a href="#" class="read-more">Decrypt File →</a>
+                </div>
+                
+                <div class="mystery-card" 
+                    data-mystery-id="area51" 
+                    data-bg-url="https://placehold.co/600x400/2C3E50/FFFFFF?text=Area+51+UFO"
+                    onclick="showDetail('area51')">
+                    <h3 class="mystery-title">Area 51</h3>
+                    <p class="mystery-preview">A highly classified U.S. Air Force facility in Nevada, long rumored to house extraterrestrial technology and alien bodies...</p>
+                    <a href="#" class="read-more">Decrypt File →</a>
+                </div>
+
+                <div class="mystery-card" 
+                    data-mystery-id="yeti" 
+                    data-bg-url="https://placehold.co/600x400/5C7A99/FFFFFF?text=Yeti+Footprint"
+                    onclick="showDetail('yeti')">
+                    <h3 class="mystery-title">The Yeti</h3>
+                    <p class="mystery-preview">The legendary "Abominable Snowman" of the Himalayas, a cryptid reported by Sherpa people and mountaineers for centuries...</p>
+                    <a href="#" class="read-more">Decrypt File →</a>
+                </div>
+
+                <div class="mystery-card" 
+                    data-mystery-id="illuminati" 
+                    data-bg-url="https://placehold.co/600x400/3A3A3A/FFFFFF?text=Illuminati+Eye"
+                    onclick="showDetail('illuminati')">
+                    <h3 class="mystery-title">The Illuminati</h3>
+                    <p class="mystery-preview">A secret society believed by many to control world events from the shadows, manipulating governments and economies...</p>
+                    <a href="#" class="read-more">Decrypt File →</a>
+                </div>
+
+                <div class="mystery-card" 
+                    data-mystery-id="appalachian" 
+                    data-bg-url="https://placehold.co/600x400/4A583A/FFFFFF?text=Appalachian+Fog"
+                    onclick="showDetail('appalachian')">
+                    <h3 class="mystery-title">Appalachian Mysteries</h3>
+                    <p class="mystery-preview">The ancient mountains harbor unexplained phenomena, strange disappearances, and legends of creatures that defy explanation...</p>
+                    <a href="#" class="read-more">Decrypt File →</a>
+                </div>
+
+                <div class="mystery-card" 
+                    data-mystery-id="skinwalkers" 
+                    data-bg-url="https://placehold.co/600x400/4D265A/FFFFFF?text=Skinwalker+Wolf"
+                    onclick="showDetail('skinwalkers')">
+                    <h3 class="mystery-title">Skinwalkers</h3>
+                    <p class="mystery-preview">Shape-shifting beings from Navajo legend, said to possess the ability to transform into animals and bring misfortune...</p>
+                    <a href="#" class="read-more">Decrypt File →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DETAIL PAGES (Content kept consistent with your previous work) -->
+    <div id="detail-bermuda" class="detail-page">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showHome()">← Back to Mysteries</a>
+            <div class="detail-content">
+                <h2 class="detail-title">The Bermuda Triangle</h2>
+                <div class="detail-text">
+                    <p>The Bermuda Triangle, also known as the Devil's Triangle, is a loosely defined region in the western part of the North Atlantic Ocean where numerous aircraft and ships are said to have disappeared under mysterious circumstances. The area roughly spans between Miami, Bermuda, and Puerto Rico, covering approximately 500,000 square miles of ocean.</p>
+                    <h3>History of Disappearances</h3>
+                    <p>The mystery began gaining public attention in the 1950s when several unexplained disappearances were documented. One of the most famous incidents was the disappearance of Flight 19, a group of five U.S. Navy torpedo bombers that vanished on December 5, 1945, during a training flight. All 14 airmen on board were lost, and a rescue plane sent to search for them also disappeared with its 13-man crew.</p>
+                    <h3>Theories and Explanations</h3>
+                    <p>Over the years, numerous theories have been proposed to explain the disappearances:</p>
+                    <p><strong>Natural Explanations:</strong> The Gulf Stream in this area is particularly strong and turbulent, which could quickly remove evidence of disasters. The region is prone to sudden, violent storms and waterspouts. The seafloor topology features some of the deepest underwater trenches in the world, making wreckage recovery extremely difficult.</p>
+                    <p><strong>Methane Hydrates:</strong> Some scientists suggest that methane gas trapped in the seafloor could erupt, reducing water density and causing ships to sink rapidly. These gas releases could also potentially affect aircraft engines.</p>
+                    <p><strong>Electronic Fog:</strong> Some witnesses have reported strange fog formations that seem to envelop vessels, causing navigational equipment to malfunction.</p>
+                    <h3>Scientific Perspective</h3>
+                    <p>Many researchers argue that the number of incidents in the Bermuda Triangle is not significantly higher than in any other heavily traveled region of the ocean. The U.S. Coast Guard and other official organizations do not recognize the Bermuda Triangle as a particularly dangerous area. They attribute most incidents to a combination of human error, equipment failure, and severe weather conditions.</p>
+                    <h3>The Mystery Continues</h3>
+                    <p>Despite rational explanations, the Bermuda Triangle continues to capture public imagination. Whether the result of natural phenomena, human error, or something more mysterious, it remains one of the world's most intriguing maritime mysteries. Modern navigation technology has made travel through the region much safer, yet the legends and stories persist, reminding us that the ocean still holds secrets we may never fully understand.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-atlantis" class="detail-page">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showHome()">← Back to Mysteries</a>
+            <div class="detail-content">
+                <h2 class="detail-title">Lost City of Atlantis</h2>
+                <div class="detail-text">
+                    <p>Atlantis is a legendary island civilization first mentioned by the ancient Greek philosopher Plato around 360 BCE in his dialogues "Timaeus" and "Critias." According to Plato, Atlantis was a powerful and advanced kingdom that existed about 9,000 years before his own time, ultimately sinking into the ocean in a single day and night of catastrophic destruction.</p>
+                    <h3>Plato's Description</h3>
+                    <p>Plato described Atlantis as a sophisticated society with advanced engineering, architecture, and naval power. The city was arranged in concentric circles of water and land, connected by tunnels large enough for ships to pass through. At the center stood a magnificent temple dedicated to Poseidon, adorned with gold, silver, and orichalcum (a mysterious metal mentioned by Plato).</p>
+                    <h3>The Fall of Atlantis</h3>
+                    <p>According to legend, the Atlanteans grew corrupt and greedy, attempting to conquer Athens and other Mediterranean cities. The gods, angered by their hubris, punished them by sending earthquakes and floods that caused the entire island to sink beneath the waves in a single catastrophic event.</p>
+                    <h3>Possible Locations</h3>
+                    <p>Over centuries, numerous locations have been proposed as the true site of Atlantis, including the Mediterranean Sea near Greece, the Atlantic Ocean beyond the Pillars of Hercules (modern Strait of Gibraltar), the Caribbean, Antarctica, and even the North Sea. Some researchers believe the story may be based on the real destruction of the Minoan civilization on Santorini around 1600 BCE, when a massive volcanic eruption devastated the island.</p>
+                    <h3>Archaeological Searches</h3>
+                    <p>Despite centuries of searching, no conclusive archaeological evidence of Atlantis has been discovered. Modern technology, including satellite imagery and underwater exploration, has revealed many ancient coastal cities submerged by rising sea levels, but none matching Plato's specific descriptions.</p>
+                    <h3>Interpretations and Legacy</h3>
+                    <p>Many scholars believe Plato invented Atlantis as a philosophical allegory to illustrate his theories about ideal government and the consequences of moral corruption. Others maintain that some historical kernel of truth inspired the tale. Regardless of its factual basis, Atlantis has profoundly influenced literature, art, and popular culture, representing humanity's fascination with lost civilizations and the mysteries hidden beneath the seas.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-nazca" class="detail-page">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showHome()">← Back to Mysteries</a>
+            <div class="detail-content">
+                <h2 class="detail-title">The Nazca Lines</h2>
+                <div class="detail-text">
+                    <p>The Nazca Lines are a series of ancient geoglyphs located in the Nazca Desert of southern Peru. Created between 500 BCE and 500 CE by the Nazca culture, these massive designs drawn on the ground span over 450 square kilometers and include hundreds of figures ranging from simple lines to elaborate depictions of animals, plants, and geometric shapes.</p>
+                    <h3>Discovery and Preservation</h3>
+                    <p>While local people had known about the lines for centuries, they weren't widely recognized until the 1920s when Peruvian archaeologist Toribio Mejía Xesspe spotted them while hiking through the foothills. The true scale of the geoglyphs became apparent only with the advent of flight in the 1930s, when pilots flying over the desert observed the immense figures visible only from above. The Nazca Lines were designated a UNESCO World Heritage Site in 1994.</p>
+                    <h3>Construction Methods</h3>
+                    <p>The lines were created by removing the reddish pebbles covering the desert surface to reveal the lighter-colored ground beneath. The Nazca people achieved remarkable precision in their designs, creating perfectly straight lines stretching for kilometers. They likely used simple tools and a coordinate system based on wooden stakes and ropes to maintain accuracy across vast distances.</p>
+                    <h3>Theories About Their Purpose</h3>
+                    <p>The purpose of the Nazca Lines remains hotly debated. Some theories suggest they served as astronomical calendars, with certain lines aligning with solstices or celestial bodies. Others propose they were pathways for religious processions or offerings to the gods who would see them from above. Recent research indicates they may have been related to water rituals, as water was precious in the arid desert environment.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="detail-stonehenge" class="detail-page">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showHome()">← Back to Mysteries</a>
+            <div class="detail-content">
+                <h2 class="detail-title">Stonehenge</h2>
+                <div class="detail-text">
+                    <p>Stonehenge is a prehistoric monument located in Wiltshire, England, consisting of a ring of massive standing stones arranged in a circular formation. Built in several stages between approximately 3000 BCE and 2000 BCE, it represents one of the most sophisticated megalithic structures in the world and continues to mystify researchers about its purpose and construction methods.</p>
+                    <h3>Construction Phases</h3>
+                    <p>Stonehenge was constructed in multiple phases over about 1,500 years. The first phase around 3000 BCE consisted of a circular ditch and bank. Around 2500 BCE, the iconic sarsen stones (weighing up to 25 tons each) were erected, along with smaller bluestones transported from the Preseli Hills in Wales, located over 150 miles away. The method of transporting these massive stones across such distances remains a subject of intense debate and research.</p>
+                    <h3>Astronomical Alignments</h3>
+                    <p>One of Stonehenge's most remarkable features is its precise astronomical alignments. The monument's axis aligns with the sunrise on the summer solstice and the sunset on the winter solstice. This has led many researchers to believe it functioned as a sophisticated astronomical observatory or calendar, allowing ancient peoples to track seasonal changes crucial for agriculture and religious ceremonies.</p>
+                    <h3>Theories of Purpose</h3>
+                    <p>Numerous theories exist about Stonehenge's original purpose. Some scholars believe it was a temple for sun worship, while others suggest it served as a healing sanctuary, as many excavated remains show signs of illness or injury.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="detail-pyramids" class="detail-page">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showHome()">← Back to Mysteries</a>
+            <div class="detail-content">
+                <h2 class="detail-title">The Egyptian Pyramids</h2>
+                <div class="detail-text">
+                    <p>The Egyptian pyramids are among humanity's most enduring architectural achievements. Built primarily during the Old and Middle Kingdom periods (circa 2686-1650 BCE), these massive stone structures served as tombs for pharaohs and testaments to ancient Egypt's organizational and engineering capabilities. The most famous pyramids are located at Giza, just outside modern Cairo.</p>
+                    <h3>The Great Pyramid of Khufu</h3>
+                    <p>The Great Pyramid, built for Pharaoh Khufu around 2560 BCE, is the largest and oldest of the three pyramids at Giza. Originally standing at 146.6 meters (481 feet), it was the world's tallest man-made structure for over 3,800 years. The pyramid consists of approximately 2.3 million stone blocks, each weighing between 2 and 80 tons.</p>
+                    <h3>Construction Mysteries</h3>
+                    <p>How the ancient Egyptians built these colossal structures without modern machinery remains one of history's greatest puzzles. The prevailing theory suggests that workers used copper tools to cut limestone blocks, transported them using wooden sledges lubricated with water, and raised them into place using internal ramps.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="detail-oakisland" class="detail-page">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showHome()">← Back to Mysteries</a>
+            <div class="detail-content">
+                <h2 class="detail-title">Oak Island Money Pit</h2>
+                <div class="detail-text">
+                    <p>Oak Island, a small island off the coast of Nova Scotia, Canada, has been the site of the world's longest treasure hunt. At the center of this mystery is the "Money Pit," a shaft that has consumed millions of dollars and claimed several lives in the pursuit of suspected buried treasure. The legend began in 1795 when a teenager named Daniel McGinnis discovered a circular depression in the ground beneath an old oak tree.</p>
+                    <h3>Initial Discovery</h3>
+                    <p>McGinnis, along with friends John Smith and Anthony Vaughan, began excavating the site. They discovered a layer of flagstones two feet below the surface, followed by layers of oak logs at regular 10-foot intervals. As they dug deeper, they encountered what appeared to be sophisticated booby traps, including flood tunnels designed to inundate the pit with seawater when disturbed.</p>
+                    <h3>The Elaborate Flooding System</h3>
+                    <p>One of the Money Pit's most perplexing features is its ingenious flood tunnel system. Excavators discovered that tunnels connected the pit to the ocean, allowing seawater to rush in when they dug too deep. This defensive mechanism has thwarted treasure hunters for over two centuries.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-area51" class="detail-page">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showHome()">← Back to Mysteries</a>
+            <div class="detail-content">
+                <h2 class="detail-title">Area 51</h2>
+                <div class="detail-text">
+                    <p>Area 51 is the popular name of a highly classified United States Air Force facility located in the southern Nevada desert. For decades, it has been the subject of intense speculation and conspiracy theories, primarily regarding extraterrestrial life and technology.</p>
+                    <h3>Official Purpose</h3>
+                    <p>The primary purpose of the facility, officially known as Homey Airport or Groom Lake, is the development and testing of experimental aircraft and weapons systems. Its existence was officially acknowledged by the CIA in 2013, confirming its use for the testing of reconnaissance aircraft like the U-2 in the 1950s and 60s.</p>
+                    <h3>Conspiracy Theories</h3>
+                    <p>The secrecy surrounding the base led to its association with UFOs and alien cover-ups. The most prominent theory is that the government is storing and examining the wreckage of a crashed extraterrestrial spacecraft, possibly from the 1947 Roswell incident, and even the alien bodies themselves.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-yeti" class="detail-page">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showHome()">← Back to Mysteries</a>
+            <div class="detail-content">
+                <h2 class="detail-title">The Yeti</h2>
+                <div class="detail-text">
+                    <p>The Yeti, also known as the Abominable Snowman, is a legendary ape-like cryptid said to inhabit the snowy Himalayan mountain ranges of Nepal and Tibet. Stories of this large, hairy creature predate modern sightings and are deeply embedded in the folklore of the Sherpa people.</p>
+                    <h3>Modern Sightings</h3>
+                    <p>Interest in the Yeti exploded in the West in the mid-20th century, particularly after mountaineer Eric Shipton photographed a large, distinct footprint in the snow in 1951 during an Everest expedition. Since then, numerous expeditions have been launched to find conclusive evidence, typically returning with ambiguous results like large footprints, blurry photos, or hair samples.</p>
+                    <h3>Scientific Analysis</h3>
+                    <p>Many alleged Yeti artifacts, such as scalps and hair samples, have been scientifically analyzed. DNA testing on hair samples attributed to the Yeti has repeatedly concluded that they belong to known animals, such as bears (including the Himalayan brown bear) or dogs. Scientists generally categorize the Yeti as a myth or misidentification of indigenous wildlife.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-illuminati" class="detail-page">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showHome()">← Back to Mysteries</a>
+            <div class="detail-content">
+                <h2 class="detail-title">The Illuminati</h2>
+                <div class="detail-text">
+                    <p>The Illuminati was an Enlightenment-era secret society founded on May 1, 1776, in Bavaria by Adam Weishaupt. The original group was dedicated to promoting Enlightenment ideals like rationalism and secularism, opposing superstition, religious influence over public life, and the abuse of state power. It was banned by the Bavarian ruler in 1785.</p>
+                    <h3>The Conspiracy Theory</h3>
+                    <p>In modern popular culture, the term "Illuminati" refers to a shadowy, elite organization believed to be working in secret to establish a New World Order, controlling world affairs through powerful figures in government, finance, and entertainment. This conspiracy theory often links them to other groups like the Freemasons.</p>
+                    <h3>Lack of Evidence</h3>
+                    <p>Despite the proliferation of these theories, there is no credible evidence that the original Bavarian Illuminati survived its ban or has any involvement in global politics today. The enduring appeal of the conspiracy lies in the human desire to find simple, powerful explanations for complex global events.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-appalachian" class="detail-page">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showHome()">← Back to Mysteries</a>
+            <div class="detail-content">
+                <h2 class="detail-title">Appalachian Mysteries</h2>
+                <div class="detail-text">
+                    <p>The Appalachian Mountains, one of the oldest mountain ranges in the world, stretching from Canada to Alabama, are home to a dense layer of folklore, ghost stories, and strange phenomena. The isolation of the mountain communities, combined with the rugged terrain, has fueled centuries of unexplained mysteries.</p>
+                    <h3>Missing 411</h3>
+                    <p>One modern mystery associated with the region is the phenomenon of "Missing 411," a term coined for clusters of people who have allegedly disappeared in national parks and wilderness areas under unusual circumstances, often with no trace or logical explanation.</p>
+                    <h3>Cryptids and Legends</h3>
+                    <p>The mountains are rife with cryptid legends, including the Mothman of West Virginia, the Wampus Cat, and various types of "haints" (ghosts). These stories are often intertwined with local history and serve as cautionary tales or explanations for the deep, unsettling quiet of the ancient forests.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-skinwalkers" class="detail-page">
+        <div class="container">
+            <a href="#" class="back-button" onclick="showHome()">← Back to Mysteries</a>
+            <div class="detail-content">
+                <h2 class="detail-title">Skinwalkers</h2>
+                <div class="detail-text">
+                    <p>Skinwalkers originate from Navajo (Diné) tradition and are considered one of the most terrifying and powerful forms of malevolent witches. In the Navajo language, the term translates to "by means of it, it goes on all fours."</p>
+                    <h3>The Legend</h3>
+                    <p>A Skinwalker is a person (usually a medicine man or woman) who has gained supernatural powers by violating a cultural taboo, most often the taboo against killing a family member. These individuals are said to be able to transform into, or possess, an animal—most commonly a wolf, coyote, owl, or crow—to inflict harm, illness, or death on victims.</p>
+                    <h3>Cultural Significance</h3>
+                    <p>Unlike simple folklore monsters, the Skinwalker legend holds deep cultural significance for the Navajo people. Discussing Skinwalkers openly is often considered taboo, as it is believed that speaking of them can attract their attention. They represent the ultimate antithesis of harmony and balance, core tenets of Navajo philosophy.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer>
+        <p>&copy; 2024 Mystery Core Archive. All rights reserved. Dive Deeper.</p>
+    </footer>
+
+    <script>
+        // Maps the data-bg-url attribute to the card's background style on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const mysteryCards = document.querySelectorAll('.mystery-card');
+            mysteryCards.forEach(card => {
+                const imageUrl = card.getAttribute('data-bg-url');
+                if (imageUrl) {
+                    card.style.backgroundImage = `url('${imageUrl}')`;
+                    
+                    // SPECIAL NOTE: If you know the direct link to your image_905928.jpg, 
+                    // you can replace the URL for the Bermuda Triangle card here:
+                    if (card.getAttribute('data-mystery-id') === 'bermuda') {
+                        // REPLACE THIS PLACEHOLDER URL WITH YOUR ACTUAL UPLOADED IMAGE URL
+                        // Example: card.style.backgroundImage = 'url("YOUR_IMAGE_905928_URL_HERE")';
+                        card.style.backgroundImage = 'url("https://placehold.co/600x400/0A376B/FFFFFF?text=Bermuda+Storm")';
+                    }
+                }
+            });
+        });
+        
+        // --- NEW: Parallax Scroll Effect for the Hero Background (3D feel) ---
+        window.addEventListener('scroll', () => {
+            const hero = document.querySelector('.hero');
+            // Calculate scroll distance
+            let scrollPosition = window.scrollY;
+            
+            // Adjust the background position at a slower rate (0.3 of the scroll speed).
+            // This makes the background appear further away, creating the depth effect.
+            hero.style.backgroundPosition = `center calc(50% - ${scrollPosition * 0.3}px)`;
+        });
+        // --------------------------------------------------------------------
+
+        // Navigation logic (unchanged from your previous file)
+        const showDetail = (id) => {
+            document.getElementById('homepage').style.display = 'none';
+            document.querySelectorAll('.detail-page').forEach(page => page.classList.remove('active'));
+            document.getElementById(`detail-${id}`).classList.add('active');
+            window.scrollTo(0, 0); // Scroll to top on page transition
+            return false;
+        };
+
+        const showHome = () => {
+            document.getElementById('homepage').style.display = 'block';
+            document.querySelectorAll('.detail-page').forEach(page => page.classList.remove('active'));
+            window.scrollTo(0, document.querySelector('.container').offsetTop - 20); // Scroll to the start of the grid
+            return false;
+        };
+    </script>
+</body>
+</html>
